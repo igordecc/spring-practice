@@ -6,6 +6,7 @@ import org.example.sweater.repos.MessageRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,10 +26,20 @@ public class MainController {
     }
 
     @GetMapping("/main")
-    public String main(Map<String, Object> model) {
+    public String main(
+            @RequestParam(required = false, defaultValue = "") String tag,
+            Model model
+    ) {
         Iterable<Message> messages = messageRepo.findAll();
 
-        model.put("messages", messages);
+        if (tag != null && !tag.isEmpty()) {
+            messages = messageRepo.findByTag(tag);
+        } else {
+            messages = messageRepo.findAll();
+        }
+
+        model.addAttribute("messages", messages);
+        model.addAttribute("tag", tag);
 
         return "main";
     }
@@ -39,7 +50,7 @@ public class MainController {
             @RequestParam String text,
             @RequestParam String tag, Map<String, Object> model
     ) {
-        Message message = new Message(text, tag);
+        Message message = new Message(text, tag, user);
         messageRepo.save(message);
         Iterable<Message> messages = messageRepo.findAll();
 
