@@ -2,6 +2,7 @@
 <#import "parts/login.ftlh" as l>
 
 <@c.page>
-    ${(message)!}
+    Add message
+    ${message?ifExists}
     <@l.login "/registration" />
 </@c.page>
